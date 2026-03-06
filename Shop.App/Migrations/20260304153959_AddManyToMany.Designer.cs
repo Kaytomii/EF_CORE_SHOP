@@ -12,8 +12,8 @@ using Shop.App.Data;
 namespace Shop.App.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    [Migration("20260302152531_Initial")]
-    partial class Initial
+    [Migration("20260304153959_AddManyToMany")]
+    partial class AddManyToMany
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,16 +43,28 @@ namespace Shop.App.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.CategoryProduct", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Store")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("CategoryProduct");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CategoryId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -67,8 +79,6 @@ namespace Shop.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId1");
-
                     b.ToTable("Products");
                 });
 
@@ -79,10 +89,13 @@ namespace Shop.App.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("HashPassword")
                         .HasColumnType("nvarchar(max)");
@@ -98,23 +111,49 @@ namespace Shop.App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PrimaryKey_UserId");
 
-                    b.ToTable("Users");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("MinNameLength", "LEN(Name) >= 1");
+
+                            t.HasCheckConstraint("MinSurNameLength", "LEN(SurName) >= 1");
+
+                            t.HasCheckConstraint("RoleCheck", "[Role] BETWEEN 0 AND 3");
+                        });
                 });
 
-            modelBuilder.Entity("Shop.Domain.Entities.Product", b =>
+            modelBuilder.Entity("Shop.Domain.Entities.CategoryProduct", b =>
                 {
                     b.HasOne("Shop.Domain.Entities.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId1");
+                        .WithMany("Categories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Domain.Entities.Product", "Product")
+                        .WithMany("Categories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.Category", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Categories");
                 });
 #pragma warning restore 612, 618
         }
