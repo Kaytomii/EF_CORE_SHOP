@@ -37,7 +37,7 @@ namespace Shop.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.CategoryProduct", b =>
@@ -55,7 +55,7 @@ namespace Shop.App.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoryProduct");
+                    b.ToTable("CategoryProduct", (string)null);
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.Product", b =>
@@ -76,7 +76,7 @@ namespace Shop.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.User", b =>
@@ -114,7 +114,7 @@ namespace Shop.App.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", t =>
+                    b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("MinNameLength", "LEN(Name) >= 1");
 
