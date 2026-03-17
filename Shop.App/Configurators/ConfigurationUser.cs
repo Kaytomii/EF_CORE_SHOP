@@ -13,6 +13,7 @@ public class ConfigurationUser : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
+
         builder.HasKey(u => u.Id)
                .HasName("PrimaryKey_UserId");
 
@@ -37,7 +38,10 @@ public class ConfigurationUser : IEntityTypeConfiguration<User>
 
         builder.ToTable(sub => sub.HasCheckConstraint("MinSurNameLength", "LEN(SurName) >= 1"));
 
-        builder.Property(u => u.CreatedAt)
-               .HasDefaultValueSql("SYSDATETIME()");
+        builder
+            .Property(b => b.CreatedAt)
+            .HasColumnType("datetime(6)")        // точность микросекунд
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)")
+            .ValueGeneratedOnAdd();
     }
 }

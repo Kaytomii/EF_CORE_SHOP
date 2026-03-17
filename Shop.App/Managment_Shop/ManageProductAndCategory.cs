@@ -9,6 +9,8 @@ namespace Shop.App.Managment_Shop;
 public class ManageProductAndCategory
 {
     private readonly List<Product> Products = new List<Product>();
+    private readonly List<Category> Categories = new List<Category>();
+
 
     public Product CreateProduct(string name, decimal price, int stockQuantity)
     {
@@ -63,5 +65,26 @@ public class ManageProductAndCategory
             .OrderByDescending(p => p.Price)
             .Take(3);
     }
+
+    public List<Category> GetCategoriesByProduct(Guid productId)
+    {
+        var product = Products.FirstOrDefault(p => p.Id == productId);
+        if (product == null) return new List<Category>();
+
+        return product.Categories!
+        .Select(cp => Categories.FirstOrDefault(c => c.Id == cp.CategoryId))
+        .Where(c => c != null)!
+        .ToList()!;
+
+    }
+
+    public List<Product> GetProductsByCategory(Guid categoryId)
+    {
+        return Products
+            .Where(p => p.Categories != null &&
+                        p.Categories.Any(cp => cp.CategoryId == categoryId))
+            .ToList();
+    }
+
 
 }
