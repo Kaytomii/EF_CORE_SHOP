@@ -13,4 +13,6 @@ public class User
     public UserRole Role { get; set; } = UserRole.USER;
     public DateTime CreatedAt { get; set; }
 
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
+
 }
